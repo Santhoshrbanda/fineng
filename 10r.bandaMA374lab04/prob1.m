@@ -1,0 +1,75 @@
+function[] = lab_4()  
+    M = [0.1 0.2 0.15];
+    C = [0.005 -0.010 0.004; -0.010 0.040 -0.002; 0.004 -0.002 0.023];
+    %Part-A
+    [mean_vec, var_vec] = Markowitz_EF(M, C);
+    f_name = ['\sigma vs. \mu '];
+    figure('Name', f_name);
+    plot(var_vec, mean_vec, 'g');
+    grid on;
+    xlabel('standard deviation');
+    ylabel('expected return');
+    title(f_name)
+    %Part-B
+    fprintf('\nB)\n');
+    u = ones(1, length(M));
+    a = (u / C) * u';
+    b = (u / C) * M';
+    c = (M / C) * M';
+    del = (a * c) - (b * b);
+    for i = 2:2:20
+        l1 = (c - (b * mean_vec(i))) / del;
+        l2 = ((a * mean_vec(i)) - b) / del;
+        weights = ((l1 * u) + (l2 * M)) / C;
+        fprintf('For mean = %.8f, variance = %.8f, ', mean_vec(i), var_vec(i));
+        display(weights);
+    end
+    %Part-C
+    fprintf('\nPart C\n\n');
+    a = (u / C) * u';
+    b = (u / C) * M';
+    c = (M / C) * M';
+    del = (a * c) - (b * b);
+    risk = 0.15;
+    returns = roots([a (-2 * b) (c - (risk * risk * del))]);
+    fprintf('Returns are\n');
+    disp(returns);
+    %Part-D
+    fprintf('\nPart D\n\n');
+    returns = 0.18;
+    risk = ((a * returns * returns) - (2 * b * returns) + c) / del;
+    fprintf('Minimum Risk is\n');
+    disp(risk);
+    % Part-E
+    fprintf('\nPart E\n\n');
+    rf = 0.10;
+    u = ones(1, length(M));
+    wt_m = (M - (rf * u)) / C;
+    wt_m = wt_m / ((M - (rf * u)) / C * u');
+    ret_m = M * wt_m';
+    sig_m = sqrt(wt_m * C * wt_m');
+    fprintf('The Market Portfolio has weights\n');
+    disp(wt_m);
+    sigs = 0:0.01:0.3;
+    rets = rf + (sigs * ((ret_m - rf) / sig_m));
+    f_name = ['\sigma vs. \mu'];
+      figure('Name', f_name);
+    plot(sigs, rets, 'g');
+    grid on;
+    xlabel('standard deviation');
+    ylabel('expected return');
+    title(f_name);
+
+end
+
+function [p_mean_vec, p_var_vec] = Markowitz_EF(mean_vec, cov_mat)
+    n = length(mean_vec);
+    u = ones(1, n);
+    a = (u / cov_mat) * u';
+    b = (u / cov_mat) * mean_vec';
+    c = (mean_vec / cov_mat) * mean_vec';
+    del = (a * c) - (b * b);
+    p_mean_vec = 0:0.01:0.3;
+    p_var_vec = (a * (p_mean_vec .^ 2)) - (2 * b * p_mean_vec) + c;
+    p_var_vec = p_var_vec / del;
+end
